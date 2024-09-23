@@ -34,8 +34,8 @@ export const createDocument = async ({ userId, email }: CreateDocumentParams) =>
 
     return parseStringify(room);
   } catch (error) {
-    console.error(`Error happened while creating room: ${error.message}`);
-    throw new Error(`Error occurred: ${error.message}`);
+    console.error(`Error happened while creating room: ${error}`);
+    throw new Error(`Error occurred: ${error}`);
   }
 };
 
@@ -125,10 +125,10 @@ export const removeCollaborator = async ({ email, roomId }: {roomId: string, ema
         throw new Error('You cannot remove yourself from the document')
       }
 
-      const updatedRoom = await liveblocks.updateRoom(roomId, {
-        usersAccesses: {
-          [email]: null               }
-      })
+      // const updatedRoom = await liveblocks.updateRoom(roomId, {
+      //   usersAccesses: {
+      //     [email]: null               }
+      // })
     
       revalidatePath(`/documents/${roomId}`);
     

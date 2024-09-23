@@ -33,10 +33,10 @@ const Document = async ({ params: { id } }: SearchParamProps) => {
     <main className='flex w-full flex-col'>
       <CollaborativeRoom 
         roomId={id}
-        roomMetadata={room.metadata} users={[]} currentUserType={'creator'} 
+        roomMetadata={room.metadata}
         users={usersData}
         currentUserType={currentUserType}
-        />
+      />
     </main>
   )
 }

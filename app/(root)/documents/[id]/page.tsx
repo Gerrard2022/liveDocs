@@ -5,6 +5,8 @@ import { currentUser } from '@clerk/nextjs/server';
 import { redirect } from 'next/navigation';
 import React from 'react';
 
+type UserType = 'editor' | 'viewer'; // Replace with your actual UserType definition
+
 const Document = async ({ params: { id } }: SearchParamProps) => {
   const clerkUser = await currentUser();
   if (!clerkUser) redirect('/sign-in');
@@ -16,19 +18,16 @@ const Document = async ({ params: { id } }: SearchParamProps) => {
 
   if (!room) redirect('/');
 
-  // Ensure usersAccesses exists and is an object
   const userIds = Object.keys(room.usersAccesses || {});
-  
-  // Fetch users
   const users = await getClerkUsers({ userIds });
-  
-  // Ensure users is an array
-  const usersData = Array.isArray(users) ? users.map((user: User) => ({
-    ...user,
-    userType: room.usersAccesses[user.email]?.includes('room:write') ? 'editor' : 'viewer',
-  })) : []; // Fallback to empty array if not an array
 
-  const currentUserType = room.usersAccesses[clerkUser.emailAddresses[0].emailAddress]?.includes('room:write') ? 'editor' : 'viewer';
+  // Ensure users is an array
+  const usersData: User[] = Array.isArray(users) ? users.map((user: User) => ({
+    ...user,
+    userType: room.usersAccesses[user.email]?.includes('room:write') ? 'editor' : 'viewer', // Ensure this matches UserType
+  })) : [];
+
+  const currentUserType: UserType = room.usersAccesses[clerkUser.emailAddresses[0].emailAddress]?.includes('room:write') ? 'editor' : 'viewer';
 
   return (
     <main className='flex w-full flex-col'>

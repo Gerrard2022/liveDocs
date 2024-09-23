@@ -29,18 +29,22 @@ const ShareModal = ({ roomId, collaborators, creatorId, currentUserType }: Share
   const [email, setEmail] = useState('');
   const [userType, setUserType] = useState<UserType>('viewer')
 
-    const shareDocumentHandler = async () => {
-        setLoading(true);
+  const shareDocumentHandler = async () => {
+    setLoading(true);
 
-        await updateDocumentAccess({ 
-            roomId, 
-            email, 
-            userType: userType as UserType, 
-            updatedBy: user.info,
-        });
+   
+    await updateDocumentAccess({ 
+        roomId, 
+        email, 
+        userType: userType as UserType, 
+        updatedBy: {
+            ...user.info, 
+            email: email 
+        },
+    });
 
-        setLoading(false);
-    }
+    setLoading(false);
+};
 
     return (
         <Dialog open={open} onOpenChange={setOpen}>
@@ -98,7 +102,7 @@ const ShareModal = ({ roomId, collaborators, creatorId, currentUserType }: Share
                         creatorId={creatorId}
                         email={collaborator.email}
                         collaborator={collaborator}
-                        user={user.info}
+                        user={{ ...user.info, email }}
                     />
                 ))}
             </ul>

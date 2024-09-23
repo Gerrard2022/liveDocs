@@ -4,7 +4,7 @@ import { clerkClient } from "@clerk/nextjs/server";
 import { parseStringify } from "../utils";
 import { liveblocks } from "../liveblocks";
 
-export const getClerkUsers = async ({ userIds }: { userIds: string[]}) => {
+export const getClerkUsers = async ({ userIds }: { userIds: string[] }) => {
   try {
     const { data } = await clerkClient.users.getUserList({
       emailAddress: userIds,
@@ -17,13 +17,24 @@ export const getClerkUsers = async ({ userIds }: { userIds: string[]}) => {
       avatar: user.imageUrl,
     }));
 
-    const sortedUsers = userIds.map((email) => users.find((user) => user.email === email));
+    // Filter out undefined users
+    const sortedUsers = userIds
+      .map((email) => users.find((user) => user.email === email))
+      .filter((user): user is typeof users[number] => user !== undefined);
 
-    return parseStringify(sortedUsers);
+    // Convert the array to an object
+    const usersObject = sortedUsers.reduce((acc, user) => {
+      acc[user.id] = user;
+      return acc;
+    }, {} as Record<string, unknown>);
+
+    return parseStringify(usersObject);
   } catch (error) {
     console.log(`Error fetching users: ${error}`);
   }
-}
+};
+
+
 
 export const getDocumentUsers = async ({ roomId, currentUser, text }: { roomId: string, currentUser: string, text: string }) => {
   try {
@@ -31,16 +42,27 @@ export const getDocumentUsers = async ({ roomId, currentUser, text }: { roomId: 
 
     const users = Object.keys(room.usersAccesses).filter((email) => email !== currentUser);
 
-    if(text.length) {
+    if (text.length) {
       const lowerCaseText = text.toLowerCase();
+      const filteredUsers = users.filter((email: string) => email.toLowerCase().includes(lowerCaseText));
 
-      const filteredUsers = users.filter((email: string) => email.toLowerCase().includes(lowerCaseText))
+      // Convert filteredUsers array to an object
+      const usersObject = filteredUsers.reduce((acc, email) => {
+        acc[email] = true; // or any value you want to assign
+        return acc;
+      }, {} as Record<string, unknown>);
 
-      return parseStringify(filteredUsers);
+      return parseStringify(usersObject);
     }
 
-    return parseStringify(users);
+    // Convert users array to an object
+    const usersObject = users.reduce((acc, email) => {
+      acc[email] = true; // or any value you want to assign
+      return acc;
+    }, {} as Record<string, unknown>);
+
+    return parseStringify(usersObject);
   } catch (error) {
     console.log(`Error fetching document users: ${error}`);
   }
-}
+};
